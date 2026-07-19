@@ -1,35 +1,15 @@
 
-import { useState } from "react";
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./Login";
 
 function App() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
   return (
-    
-    <div className="login-box"> 
-      <h1>Login</h1>
-      
-
-      <label>Username</label>
-      <input
-        type="text"
-        placeholder="Enter username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-
-      <label>Password</label>
-      <input
-        type="password"
-        placeholder="Enter password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <button onClick={() => console.log(username, password)}> Login
-      </button>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
