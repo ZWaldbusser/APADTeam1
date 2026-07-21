@@ -35,3 +35,27 @@ def getAllHwNames(client):
     # Get and return a list of all hardware set names
     pass
 
+#To test database connectivity: python hardwareDatabase.py
+if __name__ == "__main__":
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    client = MongoClient(os.environ["MONGO_URI"])
+
+    # sanity check the connection first
+    print("Ping:", client.admin.command("ping"))   # {'ok': 1.0}
+
+    # exercise each function
+    createHardwareSet(client, "TestRig", 100)
+    print("Created. All names:", getAllHwNames(client))
+    print("Query:", queryHardwareSet(client, "TestRig"))
+
+    requestSpace(client, "TestRig", 30)
+    print("After request 30:", queryHardwareSet(client, "TestRig"))
+
+    updateAvailability(client, "TestRig", 100)
+    print("After reset:", queryHardwareSet(client, "TestRig"))
+
+    # cleanup so re-runs stay clean
+    client["haas"]["hardwareSets"].delete_many({"hwName": "TestRig"})
