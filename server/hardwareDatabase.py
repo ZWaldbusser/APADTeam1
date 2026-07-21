@@ -11,6 +11,7 @@ HardwareSet = {
 '''
 
 # Function to create a new hardware set
+# returns True if successful
 def createHardwareSet(client, hwSetName, initCapacity):
     # Create a new hardware set in the database
     myDB = client["haas"]
@@ -23,8 +24,10 @@ def createHardwareSet(client, hwSetName, initCapacity):
             'capacity': initCapacity,
             'availability': initCapacity,
         })
+        return True
     else:
         print(f"Error: hardware set '{hwSetName}' already exists")
+        return False
 
 # Function to query a hardware set by its name
 #Returns a list containing capacity and availability
@@ -42,6 +45,7 @@ def queryHardwareSet(client, hwSetName):
     return capacity, available
 
 # Function to update the availability of a hardware set
+# Returns True if successful
 def updateAvailability(client, hwSetName, newAvailability):
     # Update the availability of an existing hardware set
     myDB = client["haas"]
@@ -53,13 +57,17 @@ def updateAvailability(client, hwSetName, newAvailability):
 
     if result.matched_count == 0:
         print(f"Error: hardware set '{hwSetName}' not found")
+        return False
     elif result.modified_count == 0:
         print(f"Warning: '{hwSetName}' found but availability unchanged")
+        return False
     else:
         print(f"Updated '{hwSetName}' availability to {newAvailability}")
+        return True
 
 
 # Function to request space from a hardware set
+# Returns a True if successful
 def requestSpace(client, hwSetName, amount):
     # Request a certain amount of hardware and update availability
     capacity, avail = queryHardwareSet(client, hwSetName)
@@ -67,12 +75,15 @@ def requestSpace(client, hwSetName, amount):
     if newAmt >= 0:
         updateAvailability(client, hwSetName, newAmt)
         print(f"Successfully requested {amount} of {hwSetName}!")
+        return True
     else:
         print(f"Error: Not enough hardware for set '{hwSetName}'")
+        return False
 
 
 
 # Function to get all hardware set names
+# Returns a list of all hardware sets
 def getAllHwNames(client):
     # Get and return a list of all hardware set names
     myDB = client["haas"]
