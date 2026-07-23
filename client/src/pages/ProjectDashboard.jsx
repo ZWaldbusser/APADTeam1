@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import "./projectdashboard.css";
 
 // TODO: replace mockProjects with API call once backend is ready
 const mockProjects = [
@@ -6,7 +7,7 @@ const mockProjects = [
   { projectID: "2", name: "Project 2", itemsChecked: 2 },
 ];
 
-function ProjectOverview() {
+function ProjectDashboard() {
   const navigate = useNavigate();
 
   const handleCreateJoin = () => {
@@ -20,7 +21,7 @@ function ProjectOverview() {
   return (
     <div>
       <header>
-        <h1>HAAS Hub</h1>
+        <h1 class="header-box">HAAS Hub</h1>
       </header>
 
       <main>
@@ -47,4 +48,4 @@ function ProjectOverview() {
   );
 }
 
-export default ProjectOverview;
+export default ProjectDashboard;
