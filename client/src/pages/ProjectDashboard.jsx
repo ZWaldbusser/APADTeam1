@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import "./projectdashboard.css";
+import "./ProjectDashboard.css";
 
 // TODO: replace mockProjects with API call once backend is ready
+// TODO: fix css styling to cover whole page (global v local)
 const mockProjects = [
   { projectID: "1", name: "Project 1", itemsChecked: 0 },
   { projectID: "2", name: "Project 2", itemsChecked: 2 },
@@ -18,34 +19,40 @@ function ProjectDashboard() {
     navigate(`/projects/${projectID}/resources`);
   };
 
-  return (
-    <div>
-      <header>
-        <h1 class="header-box">HAAS Hub</h1>
-      </header>
+return (
+  <div>
+    <header className="page-header">
+      <h1>Haas Hub</h1>
+    </header>
 
-      <main>
-        <div>
-          <h2>Projects</h2>
-          <button onClick={handleCreateJoin}>Create/Join Project</button>
-        </div>
+    <main className="page-main">
+      <div className="projects-header">
+        <h2>Projects</h2>
+        <button className="create-join-btn" onClick={handleCreateJoin}>
+          Create/Join Project
+        </button>
+      </div>
 
-        <div>
-          {mockProjects.map((project) => (
-            <div key={project.projectID}>
-              <span>{project.name}</span>
-              <span>
-                {project.itemsChecked} Items Checked |{" "}
-                <button onClick={() => handleCheckoutHardware(project.projectID)}>
-                  Checkout Hardware
-                </button>
-              </span>
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
-  );
+      <div className="project-list">
+        {mockProjects.map((project) => (
+          <div className="project-row" key={project.projectID}>
+            <span>{project.name}</span>
+            <span>
+              {project.itemsChecked} Items Checked |{" "}
+              <button
+                className="checkout-btn"
+                onClick={() => handleCheckoutHardware(project.projectID)}
+              >
+                Checkout Hardware
+              </button>
+            </span>
+          </div>
+        ))}
+      </div>
+    </main>
+  </div>
+); 
+
 }
 
 export default ProjectDashboard;
