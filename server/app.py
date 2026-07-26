@@ -4,9 +4,9 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
 # Import custom modules for database interactions
-import usersDB
-import projectsDB
-import hardwareDB
+import usersDatabase
+import projectsDatabase
+import hardwareDatabase
 import os
 
 # Define the MongoDB connection string
@@ -117,13 +117,13 @@ def get_project_info():
 @app.route('/get_all_hw_names', methods=['POST'])
 def get_all_hw_names():
     # Connect to MongoDB
-
+    client = MongoClient(MONGODB_SERVER)
     # Fetch all hardware names using the hardwareDB module
-
+    hwArr = hardwareDatabase.getAllHwNames(client)
     # Close the MongoDB connection
-
+    client.close()
     # Return a JSON response
-    return jsonify({})
+    return jsonify({"hardwareNames": hwArr})
 
 # Route for getting hardware information
 @app.route('/get_hw_info', methods=['POST'])
