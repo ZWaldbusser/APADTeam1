@@ -9,6 +9,20 @@ HardwareSet = {
     'availability': initCapacity
 }
 '''
+'''
+
+AI tools were used to assist with the creation of this file.
+Due to the lack of knowledge with the syntax of 
+AI was used for:    Initial syntax relating to client and database querying,
+                    cursor and JSON details (.get, etc),
+                    and the testing script
+
+
+'''
+
+
+
+
 
 # Function to create a new hardware set
 # returns True if successful
