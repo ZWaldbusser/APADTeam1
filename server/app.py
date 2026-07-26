@@ -131,11 +131,10 @@ def get_hw_info():
     # Extract data from request
 
     # Connect to MongoDB
-
+    client = MongoClient(MONGODB_SERVER)
     # Fetch hardware set information using the hardwareDB module
 
     # Close the MongoDB connection
-
     # Return a JSON response
     return jsonify({})
 
@@ -171,21 +170,22 @@ def check_in():
 @app.route('/create_hardware_set', methods=['POST'])
 def create_hardware_set():
     # Extract data from request
-
+    data = request.get_json()
+    setName, initCapacity = data.get("hwSetName"), data.get("initCapacity")
     # Connect to MongoDB
-
+    client = MongoClient(MONGODB_SERVER)
     # Attempt to create the hardware set using the hardwareDB module
-
+    success = hardwareDatabase.createHardwareSet(client, setName, initCapacity)
     # Close the MongoDB connection
-
+    client.close()
     # Return a JSON response
-    return jsonify({})
+    return jsonify({success})
 
 # Route for checking the inventory of projects
 @app.route('/api/inventory', methods=['GET'])
 def check_inventory():
     # Connect to MongoDB
-
+    
     # Fetch all projects from the HardwareCheckout.Projects collection
 
     # Close the MongoDB connection
