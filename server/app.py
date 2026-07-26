@@ -7,9 +7,10 @@ from pymongo import MongoClient
 import usersDB
 import projectsDB
 import hardwareDB
+import os
 
 # Define the MongoDB connection string
-MONGODB_SERVER = "your_mongodb_connection_string_here"
+MONGODB_SERVER = os.environ["MONGO_URI"]
 
 # Initialize a new Flask web application
 app = Flask(__name__)
