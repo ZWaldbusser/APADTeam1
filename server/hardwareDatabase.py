@@ -39,6 +39,7 @@ def queryHardwareSet(client, hwSetName):
     cursor = myCol.find_one(myQuery)
     if cursor == None:
         print(f"Error: hardware set '{hwSetName}' not found")
+        return -1, -1
     #Extract values
     capacity = cursor.get('capacity')
     available = cursor.get('availability')

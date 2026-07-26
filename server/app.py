@@ -129,14 +129,16 @@ def get_all_hw_names():
 @app.route('/get_hw_info', methods=['POST'])
 def get_hw_info():
     # Extract data from request
-
+    data = request.get_json()
+    hwName = data.get("hwSetName")
     # Connect to MongoDB
     client = MongoClient(MONGODB_SERVER)
     # Fetch hardware set information using the hardwareDB module
-
+    capacity, avail = hardwareDatabase.queryHardwareSet(client, hwName)
     # Close the MongoDB connection
+    client.close()
     # Return a JSON response
-    return jsonify({})
+    return jsonify({capacity, avail})
 
 # Route for checking out hardware
 @app.route('/check_out', methods=['POST'])
