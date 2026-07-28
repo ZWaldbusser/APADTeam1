@@ -37,10 +37,10 @@ def db_health():
 def signup():
     data = request.get_json()
 
-    if not data or "userid" not in data or "password" not in data:
+    if not data or "userID" not in data or "password" not in data:
         return jsonify({"error": "userid and password are required"}), 400
 
-    new_id = users_db.create_user(data["userid"], data["password"])
+    new_id = users_db.create_user(data["userID"], data["password"])
 
     if new_id is None:
         return jsonify({"error": "userid already exists"}), 409
@@ -52,10 +52,10 @@ def signup():
 def login():
     data = request.get_json()
 
-    if not data or "userid" not in data or "password" not in data:
+    if not data or "userID" not in data or "password" not in data:
         return jsonify({"error": "userid and password are required"}), 400
 
-    success = users_db.verify_login(data["userid"], data["password"])
+    success = users_db.verify_login(data["userID"], data["password"])
 
     if not success:
         return jsonify({"error": "Invalid userid or password"}), 401
@@ -165,5 +165,5 @@ if __name__ == "__main__":
         print(f"[OK] Connected to MongoDB database: {db.db.name}")
     except Exception as e:
         print(f"[ERROR] Could not connect to MongoDB: {e}")
-
+    users_db.create_user("zach", "zach")
     app.run(debug=True, port=5000)

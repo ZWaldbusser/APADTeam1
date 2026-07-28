@@ -3,7 +3,7 @@ import { useState } from "react";
 import "../styles/Login.css";
 
 function Login() {
-  const [username, setUsername] = useState("");
+  const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
 
   return (
@@ -11,12 +11,12 @@ function Login() {
     <div className="login-box"> 
       <h1>Login</h1>
 
-      <label>Username</label>
+      <label>UserID</label>
       <input
         type="text"
-        placeholder="Enter username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Enter userID"
+        value={userID}
+        onChange={(e) => setUserID(e.target.value)}
       />
 
       <label>Password</label>
@@ -27,7 +27,19 @@ function Login() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button onClick={() => console.log(username, password)}> Login
+      <button onClick={async () =>{
+        try {
+          const response = await window.fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userID: userID, password: password})
+          });
+          const data = await response.json();
+          console.log(data);
+        } catch (error){
+          console.error('Login failed. ', error);
+        }
+      }}> Login
       </button>
     </div>
     </main>
