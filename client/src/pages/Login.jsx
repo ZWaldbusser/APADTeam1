@@ -1,15 +1,15 @@
 
 import { useState } from "react";
+import "../styles/Login.css";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   return (
-    
+    <main className="login-page">
     <div className="login-box"> 
       <h1>Login</h1>
-      
 
       <label>Username</label>
       <input
@@ -30,6 +30,7 @@ function Login() {
       <button onClick={() => console.log(username, password)}> Login
       </button>
     </div>
+    </main>
   );
 }
 

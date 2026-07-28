@@ -1,118 +1,49 @@
-# Import necessary libraries and modules
-from pymongo import MongoClient
+# hardware operations handling
 
-'''
-Structure of Hardware Set entry:
-HardwareSet = {
-    'hwName': hwSetName,
-    'capacity': initCapacity,
-    'availability': initCapacity
-}
-'''
+from db import db
 
-# Function to create a new hardware set
-# returns True if successful
-def createHardwareSet(client, hwSetName, initCapacity):
-    # Create a new hardware set in the database
-    myDB = client["haas"]
-    myCol = myDB["hardwareSets"]
-    myQuery = {'hwName': hwSetName}
-    cursor = myCol.find_one(myQuery)
-    if cursor == None:
-        myDB["hardwareSets"].insert_one({
-            'hwName': hwSetName,
-            'capacity': initCapacity,
-            'availability': initCapacity,
+hardware_collection = db["hardware"]
+
+
+def get_all_hardware():
+    """Return all hardware sets with capacity and availability."""
+    hardware_list = []
+    for hw in hardware_collection.find():
+        hardware_list.append({
+            "id": str(hw["_id"]),
+            "name": hw["name"],
+            "capacity": hw["capacity"],
+            "available": hw["available"]
         })
-        return True
-    else:
-        print(f"Error: hardware set '{hwSetName}' already exists")
-        return False
-
-# Function to query a hardware set by its name
-#Returns a list containing capacity and availability
-def queryHardwareSet(client, hwSetName):
-    # Query and return a hardware set from the database
-    myDB = client["haas"]
-    myCol = myDB["hardwareSets"]
-    myQuery = {'hwName': hwSetName}
-    cursor = myCol.find_one(myQuery)
-    if cursor == None:
-        print(f"Error: hardware set '{hwSetName}' not found")
-    #Extract values
-    capacity = cursor.get('capacity')
-    available = cursor.get('availability')
-    return capacity, available
-
-# Function to update the availability of a hardware set
-# Returns True if successful
-def updateAvailability(client, hwSetName, newAvailability):
-    # Update the availability of an existing hardware set
-    myDB = client["haas"]
-    myCol = myDB["hardwareSets"]
-    query = {'hwName': hwSetName}
-    update = { "$set": {'availability': newAvailability}}
-
-    result = myCol.update_one(query, update)
-
-    if result.matched_count == 0:
-        print(f"Error: hardware set '{hwSetName}' not found")
-        return False
-    elif result.modified_count == 0:
-        print(f"Warning: '{hwSetName}' found but availability unchanged")
-        return False
-    else:
-        print(f"Updated '{hwSetName}' availability to {newAvailability}")
-        return True
+    return hardware_list
 
 
-# Function to request space from a hardware set
-# Returns a True if successful
-def requestSpace(client, hwSetName, amount):
-    # Request a certain amount of hardware and update availability
-    capacity, avail = queryHardwareSet(client, hwSetName)
-    newAmt = avail - amount
-    if newAmt >= 0:
-        updateAvailability(client, hwSetName, newAmt)
-        print(f"Successfully requested {amount} of {hwSetName}!")
-        return True
-    else:
-        print(f"Error: Not enough hardware for set '{hwSetName}'")
-        return False
+def checkout_hardware(name, quantity):
+    """Decrease available count for a hardware set by quantity, if enough is available."""
+    hw = hardware_collection.find_one({"name": name})
+    if not hw:
+        return False, "Hardware set not found"
+
+    if hw["available"] < quantity:
+        return False, "Not enough available units"
+
+    hardware_collection.update_one(
+        {"name": name},
+        {"$inc": {"available": -quantity}}
+    )
+    return True, "Checkout successful"
 
 
+def checkin_hardware(name, quantity):
+    """Increase available count for a hardware set by quantity, capped at capacity."""
+    hw = hardware_collection.find_one({"name": name})
+    if not hw:
+        return False, "Hardware set not found"
 
-# Function to get all hardware set names
-# Returns a list of all hardware sets
-def getAllHwNames(client):
-    # Get and return a list of all hardware set names
-    myDB = client["haas"]
-    myCol = myDB["hardwareSets"]
+    new_available = min(hw["capacity"], hw["available"] + quantity)
 
-    cursor = myCol.find({}, {"hwName": 1, "_id": 0})
-    return [doc["hwName"] for doc in cursor]
-
-#To test database connectivity: python hardwareDatabase.py
-if __name__ == "__main__":
-    import os
-    from dotenv import load_dotenv
-
-    load_dotenv()
-    client = MongoClient(os.environ["MONGO_URI"])
-
-    # sanity check the connection first
-    print("Ping:", client.admin.command("ping"))   # {'ok': 1.0}
-
-    # exercise each function
-    createHardwareSet(client, "TestRig", 100)
-    print("Created. All names:", getAllHwNames(client))
-    print("Query:", queryHardwareSet(client, "TestRig"))
-
-    requestSpace(client, "TestRig", 30)
-    print("After request 30:", queryHardwareSet(client, "TestRig"))
-
-    updateAvailability(client, "TestRig", 100)
-    print("After reset:", queryHardwareSet(client, "TestRig"))
-
-    # cleanup so re-runs stay clean
-    client["haas"]["hardwareSets"].delete_many({"hwName": "TestRig"})
+    hardware_collection.update_one(
+        {"name": name},
+        {"$set": {"available": new_available}}
+    )
+    return True, "Check-in successful"
