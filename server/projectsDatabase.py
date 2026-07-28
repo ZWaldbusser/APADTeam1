@@ -1,6 +1,8 @@
 # Import necessary libraries and modules
 from pymongo import MongoClient
 
+import hardwareDatabase
+
 '''
 Structure of Project entry:
 Project = {
