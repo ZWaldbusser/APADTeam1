@@ -1,40 +1,44 @@
-# Import necessary libraries and modules
-from pymongo import MongoClient
 
-import projectsDB
+#Handles the MongoDB connection and all operations related to the "users" collection 
 
-'''
-Structure of User entry:
-User = {
-    'username': username,
-    'userId': userId,
-    'password': password,
-    'projects': [project1_ID, project2_ID, ...]
-}
-'''
+from db import db
 
-# Function to add a new user
-def addUser(client, username, userId, password):
-    # Add a new user to the database
-    pass
+users_collection = db["users"]
 
-# Helper function to query a user by username and userId
-def __queryUser(client, username, userId):
-    # Query and return a user from the database
-    pass
 
-# Function to log in a user
-def login(client, username, userId, password):
-    # Authenticate a user and return login status
-    pass
+def create_user(userid, password):
+    """Insert a new user document. Returns the inserted id as a string."""
+    existing = users_collection.find_one({"userid": userid})
+    if existing:
+        return None  # signal that userid is already taken
 
-# Function to add a user to a project
-def joinProject(client, userId, projectId):
-    # Add a user to a specified project
-    pass
+    new_user = {
+        "userid": userid,
+        "password": password  # plain text for now, will be hashed in a later sprint
+    }
+    result = users_collection.insert_one(new_user)
+    return str(result.inserted_id)
 
-# Function to get the list of projects for a user
-def getUserProjectsList(client, userId):
-    # Get and return the list of projects a user is part of
-    pass
 
+def find_user_by_userid(userid):
+    """Return a single user document matching the userid, or None."""
+    return users_collection.find_one({"userid": userid})
+
+
+def verify_login(userid, password):
+    """Basic check: does userid exist and does password match."""
+    user = find_user_by_userid(userid)
+    if not user:
+        return False
+    return user.get("password") == password
+
+
+def get_all_users():
+    """Return all users, excluding password field."""
+    users = []
+    for user in users_collection.find():
+        users.append({
+            "id": str(user["_id"]),
+            "userid": user["userid"]
+        })
+    return users
