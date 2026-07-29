@@ -7,6 +7,11 @@ function Login() {
   const [password, setPassword] = useState("");
 
   return (
+    <div>
+      <header className="page-header">
+        <h1>Haas Hub</h1>
+      </header>
+
     <main className="login-page">
     <div className="login-box"> 
       <h1>Login</h1>
@@ -31,6 +36,7 @@ function Login() {
       </button>
     </div>
     </main>
+    </div>
   );
 }
 
