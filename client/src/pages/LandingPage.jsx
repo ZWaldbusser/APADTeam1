@@ -17,10 +17,10 @@ export default function LandingPage() {
         </h1>
 
       <div className="nav-box">
-        <button className="btn btn-login" onClick={() => navigate("/login")}>
+        <button onClick={() => navigate("/login")}>
           Log In
         </button>
-        <button className="btn btn-create" onClick={() => navigate("/register")}>
+        <button onClick={() => navigate("/register")}>
           Create Account
         </button>
       </div>
