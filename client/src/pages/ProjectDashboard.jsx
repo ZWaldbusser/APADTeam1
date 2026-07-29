@@ -1,9 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/ProjectDashboard.css";
 
-// TODO: Add backend functionality 
-//TODO: Create components
-
 const mockProjects = [
   { projectID: "1", name: "Project 1", itemsChecked: 0 },
   { projectID: "2", name: "Project 2", itemsChecked: 2 },
@@ -23,7 +20,7 @@ function ProjectDashboard() {
 return (
   <div>
     <header className="page-header">
-      <h1>Haas Hub</h1>
+      <h1>HaaS Hub</h1>
     </header>
 
     <main className="page-main">

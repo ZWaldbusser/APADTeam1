@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../styles/Login.css";
 
-function CreateUser() {
+function ForgotPassword() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,7 +22,7 @@ function CreateUser() {
 
       <main className="login-page">
         <div className="login-box">
-          <h1>Register User</h1>
+          <h1>Forgot Password</h1>
 
           <label>Username</label>
           <input
@@ -32,27 +32,27 @@ function CreateUser() {
             onChange={(e) => setUsername(e.target.value)}
           />
 
-          <label>Password</label>
+          <label>New Password</label>
           <input
             type="password"
-            placeholder="Enter password"
+            placeholder="Enter new password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <label>Confirm Password</label>
+          <label>Confirm New Password</label>
           <input
             type="password"
-            placeholder="Confirm Password"
+            placeholder="Confirm new password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <button onClick={handleSubmit}>Create User</button>
+          <button onClick={handleSubmit}>Reset Password</button>
         </div>
       </main>
     </div>
   );
 }
 
-export default CreateUser;
+export default ForgotPassword;
