@@ -4,6 +4,7 @@ import ProjectOverview from "./pages/ProjectDashboard";
 import LandingPage from "./pages/LandingPage";
 import CreateUser from "./pages/CreateUser";
 import ForgotPassword from "./pages/ForgotPassword";
+import UserPortal from "./pages/UserPortal";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/register" element={<CreateUser />} />
         <Route path="/projects" element={<ProjectOverview />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/userportal" element={<UserPortal />} />
       </Routes>
     </BrowserRouter>
   );
