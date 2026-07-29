@@ -23,7 +23,7 @@ function ProjectDashboard() {
 return (
   <div>
     <header className="page-header">
-      <h1>Haas Hub</h1>
+      <h1>HaaS Hub</h1>
     </header>
 
     <main className="page-main">

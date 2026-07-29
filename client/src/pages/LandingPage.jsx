@@ -8,7 +8,7 @@ export default function LandingPage() {
   return (
     <div>
         <header className="page-header">
-            <h1>Haas Hub</h1>
+            <h1>HaaS Hub</h1>
         </header>
 
         <main className="landing-page">
