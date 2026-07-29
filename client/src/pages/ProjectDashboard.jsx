@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./ProjectDashboard.css";
+import "../styles/ProjectDashboard.css";
 
 const mockProjects = [
   { projectID: "1", name: "Project 1", itemsChecked: 0 },
