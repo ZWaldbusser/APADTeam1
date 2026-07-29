@@ -5,6 +5,8 @@ import LandingPage from "./pages/LandingPage";
 import CreateUser from "./pages/CreateUser";
 import ForgotPassword from "./pages/ForgotPassword";
 import UserPortal from "./pages/UserPortal";
+import CreateProject from "./pages/CreateProject";
+import JoinProject from "./pages/JoinProject";
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/projects" element={<ProjectOverview />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/userportal" element={<UserPortal />} />
+        <Route path="/createproject" element={<CreateProject />} />
+        <Route path="/joinproject" element={<JoinProject />} />
       </Routes>
     </BrowserRouter>
   );

@@ -9,10 +9,6 @@ const mockProjects = [
 function ProjectDashboard() {
   const navigate = useNavigate();
 
-  const handleCreateJoin = () => {
-    navigate("/create-join");
-  };
-
   const handleCheckoutHardware = (projectID) => {
     navigate(`/projects/${projectID}/resources`);
   };
@@ -26,7 +22,10 @@ return (
     <main className="page-main">
       <div className="projects-header">
         <h2>Projects</h2>
-        <button className="create-join-btn" onClick={handleCreateJoin}>Create/Join Project</button>
+        <div>
+        <button className="create-join-btn" onClick={() => navigate("/createproject")}>Create Project</button>
+        <button className="create-join-btn" onClick={() => navigate("/joinproject")}>Join Project</button>
+        </div>
       </div>
 
       <div className="project-list">
