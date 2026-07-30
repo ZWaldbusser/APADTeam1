@@ -3,9 +3,8 @@ body {
 }
 
 .page-header {
-  background: black;
+  background:#bf5700;
   color: white;
-  padding: 20px 30px;
 }
 
 .page-header h1 {
