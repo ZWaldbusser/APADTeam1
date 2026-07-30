@@ -1,12 +1,15 @@
 
 import { useState } from "react";
 import "../styles/Login.css";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   return (
+    <div>
     <main className="login-page">
     <div className="login-box"> 
       <h1>Login</h1>
@@ -41,8 +44,11 @@ function Login() {
         }
       }}> Login
       </button>
+      <button onClick={() => navigate("/forgotpassword")}>Forgot Password?
+      </button>
     </div>
     </main>
+    </div>
   );
 }
 
