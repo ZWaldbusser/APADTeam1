@@ -96,7 +96,7 @@ def create_project():
         return jsonify({"error": "name, description, projectID, and owner are required"}), 400
 
     created = projects_db.createProject(
-        db.client, data["name"], data["projectID"], data["description"]
+        db.client, data["name"], data["projectID"], data["description"], data["owner"]
     )
 
     if not created:
@@ -135,6 +135,22 @@ def get_projects():
             "users": project.get("users", [])
         })
     return jsonify(projects), 200
+
+@app.route("/api/project_add_user", methods=["GET"])
+def project_add_user():
+    data = request.get_json()
+    required_fields = ["projectID", "userID"]
+
+    if not data or not all(field in data for field in required_fields):
+        return jsonify({"error": "name and projectID are required"}), 400
+
+    created = projects_db.addUser(
+        db.client, data["projectID"], data["projectID"])
+
+    if not created:
+        return jsonify({"error": "User already exists"}), 409
+
+    return jsonify({"message": "User added to project", "projectID": data["projectID"]}), 201
 
 
 # Hardware routes (view hardware, checkout, check-in)

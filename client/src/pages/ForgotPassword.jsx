@@ -1,10 +1,12 @@
 import { useState } from "react";
 import "../styles/Login.css";
+import { useNavigate } from "react-router-dom";
 
 function ForgotPassword() {
   const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = () => {
     if (password !== confirmPassword) {
@@ -53,8 +55,11 @@ function ForgotPassword() {
               });
               const data = await response.json();
               console.log(data);
+              if (response.ok) {
+                navigate("/login");
+              }     
             } catch (error){
-              console.error('Login failed. ', error);
+              console.error('Pasword reset failed. ', error);
             }
           }}>Reset Password</button>
         </div>

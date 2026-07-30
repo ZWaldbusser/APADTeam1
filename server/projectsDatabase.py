@@ -32,7 +32,7 @@ def queryProject(client, projectId):
 
 # Function to create a new project.
 # returns True if successful. Returns False if project already exists
-def createProject(client, projectName, projectId, description):
+def createProject(client, projectName, projectId, description, owner):
     # Create a new project in the database
     myDB = client["haas"]
     myCol = myDB["projects"]
@@ -44,7 +44,7 @@ def createProject(client, projectName, projectId, description):
             'projectId': projectId,
             'description': description,
             'hwSets': {},
-            'users': []
+            'users': [owner]
         })
         return True
     else:
@@ -58,6 +58,9 @@ def addUser(client, projectId, userId):
     # Add a user to the specified project
     myDB = client["haas"]
     myCol = myDB["projects"]
+    if myCol.find_one({"users": userId}):
+        print(f"User '{userId} already in project.")
+        return False
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
     if cursor == None:

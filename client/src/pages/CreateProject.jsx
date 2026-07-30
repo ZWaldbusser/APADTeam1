@@ -52,7 +52,7 @@ function CreateProject() {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             /*owner will later result from the login token*/
-            body: JSON.stringify({owner: owner, projectID: projectID, name: projectName, description: projectDesc})
+            body: JSON.stringify({"owner": owner, "projectID": projectID, "name": projectName, "description": projectDesc})
           });
           const data = await response.json();
           console.log(data);
