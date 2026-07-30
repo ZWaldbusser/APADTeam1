@@ -5,6 +5,8 @@ import AuthEntryPage from "./pages/AuthEntryPage";
 import CreateUser from "./pages/CreateUser";
 import ForgotPassword from "./pages/ForgotPassword";
 import UserPortal from "./pages/UserPortal";
+import CreateProject from "./pages/CreateProject";
+import JoinProject from "./pages/JoinProject";
 import PageHeader from "./components/PageHeader";
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
         <Route path="/projects" element={<ProjectOverview />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/userportal" element={<UserPortal />} />
+        <Route path="/createproject" element={<CreateProject />} />
+        <Route path="/joinproject" element={<JoinProject />} />
       </Routes>
     </BrowserRouter>
   );
