@@ -16,12 +16,12 @@ function App() {
 
       <Routes>
         <Route path="/" element={<AuthEntryPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<CreateUser />} />
+        <Route path="/login" element={<Login />} /> {/*Communicating with DB*/}
+        <Route path="/register" element={<CreateUser />} /> {/*Communicating with DB*/}
         <Route path="/projects" element={<ProjectOverview />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} /> {/*Communicating with DB*/}
         <Route path="/userportal" element={<UserPortal />} />
-        <Route path="/createproject" element={<CreateProject />} />
+        <Route path="/createproject" element={<CreateProject />} /> {/*Communicating with DB*/}
         <Route path="/joinproject" element={<JoinProject />} />
       </Routes>
     </BrowserRouter>

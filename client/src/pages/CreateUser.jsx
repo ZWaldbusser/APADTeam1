@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../styles/Login.css";
 
 function CreateUser() {
-  const [username, setUsername] = useState("");
+  const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -24,8 +24,8 @@ function CreateUser() {
           <input
             type="text"
             placeholder="Enter username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={userID}
+            onChange={(e) => setUserID(e.target.value)}
           />
 
           <label>Password</label>
@@ -44,7 +44,19 @@ function CreateUser() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <button onClick={handleSubmit}>Create User</button>
+          <button onClick={async () =>{
+            try {
+              const response = await window.fetch('/api/signup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userID: userID, password: password})
+              });
+              const data = await response.json();
+              console.log(data);
+            } catch (error){
+              console.error('Login failed. ', error);
+            }
+          }}> Create User</button>
         </div>
       </main>
     </div>
