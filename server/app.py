@@ -62,6 +62,23 @@ def login():
 
     return jsonify({"message": "Login successful"}), 200
 
+@app.route("/api/forgot_password", methods=["POST"])
+def change_password():
+    data = request.get_json()
+
+    if not data or "userID" not in data or "password" not in data or "confirmPassword" not in data:
+        return jsonify({"error": "userid and new password are required"}), 400
+
+    if not data["password"] == data["confirmPassword"]:
+        return jsonify({"error": "Passwords must match"}), 400
+        
+    success = users_db.forgot_password(data["userID"], data["password"])
+
+    if not success:
+        return jsonify({"error": "Invalid userid or password"}), 401
+
+    return jsonify({"message": "Password  successfully changed"}), 200
+
 
 @app.route("/api/users", methods=["GET"])
 def get_users():

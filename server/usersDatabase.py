@@ -32,6 +32,13 @@ def verify_login(userid, password):
         return False
     return user.get("password") == password
 
+def forgot_password(userid, password):
+    """Basic check: does userid exist and does password match."""
+    user = find_user_by_userid(userid)
+    if not user:
+        return False
+    return users_collection.update_one({'userid': userid}, {'$set': {'password': password}})
+
 
 def get_all_users():
     """Return all users, excluding password field."""

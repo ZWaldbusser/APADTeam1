@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../styles/Login.css";
 
 function ForgotPassword() {
-  const [username, setUsername] = useState("");
+  const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -24,8 +24,8 @@ function ForgotPassword() {
           <input
             type="text"
             placeholder="Enter username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={userID}
+            onChange={(e) => setUserID(e.target.value)}
           />
 
           <label>New Password</label>
@@ -44,7 +44,19 @@ function ForgotPassword() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <button onClick={handleSubmit}>Reset Password</button>
+          <button onClick={async () =>{
+            try {
+              const response = await window.fetch('/api/forgot_password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userID: userID, password: password, confirmPassword: confirmPassword})
+              });
+              const data = await response.json();
+              console.log(data);
+            } catch (error){
+              console.error('Login failed. ', error);
+            }
+          }}>Reset Password</button>
         </div>
       </main>
     </div>

@@ -19,7 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} /> {/*Communicating with DB*/}
         <Route path="/register" element={<CreateUser />} /> {/*Communicating with DB*/}
         <Route path="/projects" element={<ProjectOverview />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} /> {/*Communicating with DB*/}
         <Route path="/userportal" element={<UserPortal />} />
         <Route path="/createproject" element={<CreateProject />} /> {/*Communicating with DB*/}
         <Route path="/joinproject" element={<JoinProject />} />
