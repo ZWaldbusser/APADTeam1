@@ -1,0 +1,28 @@
+.page-header {
+  --nav-height: 80px;
+
+  background: #bf5700;
+  color: white;
+  box-sizing: border-box;
+  min-height: var(--nav-height);
+  padding: 1px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header__title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.page-header__logo {
+  height: 52px;        
+  width: auto;
+  max-width: 180px;    
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+}
