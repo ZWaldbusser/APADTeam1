@@ -9,8 +9,11 @@ const mockProjects = [
 function ProjectOverview() {
   const navigate = useNavigate();
 
-  const handleCreateJoin = () => {
-    navigate("/create-join");
+  const handleCreate = () => {
+    navigate("/createproject");
+  };
+  const handleJoin = () => {
+    navigate("/joinproject");
   };
 
   const handleCheckoutHardware = (projectID) => {
@@ -22,9 +25,16 @@ function ProjectOverview() {
       <main className="page-main">
         <div className="projects-header">
           <h2>Projects</h2>
-          <button className="create-join-btn" onClick={handleCreateJoin}>
-            Create/Join Project
-          </button>
+          <div align="right">
+            <button className="create-join-btn" onClick={handleCreate}>
+            Create Project
+            </button>
+            &nbsp;
+            <button className="create-join-btn" onClick={handleJoin}>
+              Join Project
+            </button>
+          </div>
+          
         </div>
 
         <div className="project-list">
