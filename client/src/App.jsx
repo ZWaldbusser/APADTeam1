@@ -8,6 +8,8 @@ import UserPortal from "./pages/UserPortal";
 import CreateProject from "./pages/CreateProject";
 import JoinProject from "./pages/JoinProject";
 import PageHeader from "./components/PageHeader";
+import ResourceRental from "./pages/ResourceRental";
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
         <Route path="/userportal" element={<UserPortal />} />
         <Route path="/createproject" element={<CreateProject />} /> {/*Communicating with DB*/}
         <Route path="/joinproject" element={<JoinProject />} />
+        <Route path="/projects/:projectId/resources" element={<ResourceRental />} />
       </Routes>
     </BrowserRouter>
   );

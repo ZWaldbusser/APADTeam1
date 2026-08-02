@@ -18,7 +18,7 @@ Project = {
 # returns the project document if successful, else returns None
 def queryProject(client, projectId):
     # Query and return a project from the database
-    myDB = client["haas"]
+    myDB = client["Haas_db"]
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
