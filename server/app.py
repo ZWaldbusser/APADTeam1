@@ -11,7 +11,7 @@ import projectsDatabase as projects_db
 import hardwareDatabase as hardware_db
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # allows the React frontend (different port) to call this API
 
 
 # Health check route to confirm the server is running
