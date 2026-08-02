@@ -10,9 +10,35 @@ import usersDatabase as users_db
 import projectsDatabase as projects_db
 import hardwareDatabase as hardware_db
 
-app = Flask(__name__)
-CORS(app)  # allows the React frontend (different port) to call this API
+import jwt
+import datetime
+import os
+from functools import wraps
 
+app = Flask(__name__)
+CORS(app) 
+
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY is not set in .env")
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.replace("Bearer ", "") if auth_header else None
+        if not token:
+            return jsonify({"error": "Missing token"}), 401
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            request.user_id = payload["user_id"]
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token expired"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Invalid token"}), 401
+        return f(*args, **kwargs)
+    return decorated
 
 # Health check route to confirm the server is running
 
@@ -51,16 +77,34 @@ def signup():
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
-
     if not data or "userid" not in data or "password" not in data:
         return jsonify({"error": "userid and password are required"}), 400
 
-    success = users_db.verify_login(data["userid"], data["password"])
+    user_id = users_db.verify_login(data["userid"], data["password"])
 
-    if not success:
+    if not user_id:
         return jsonify({"error": "Invalid userid or password"}), 401
 
-    return jsonify({"message": "Login successful"}), 200
+    token = jwt.encode(
+        {
+            "user_id": user_id,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=24),
+        },
+        SECRET_KEY,
+        algorithm="HS256",
+    )
+    return jsonify({"message": "Login successful", "token": token}), 200
+
+@app.route("/api/me", methods=["GET"])
+@token_required
+def get_me():
+    user = users_db.find_user_by_id(request.user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify({
+        "id": str(user["_id"]),
+        "userid": user["userid"]
+    }), 200
 
 
 @app.route("/api/users", methods=["GET"])
@@ -71,6 +115,7 @@ def get_users():
 # Project routes (create project, get project, list projects)
 
 @app.route("/api/projects", methods=["POST"])
+@token_required
 def create_project():
     data = request.get_json()
     required_fields = ["name", "description", "projectID", "owner"]
@@ -79,20 +124,20 @@ def create_project():
         return jsonify({"error": "name, description, projectID, and owner are required"}), 400
 
     created = projects_db.createProject(
-        db.client, data["name"], data["projectID"], data["description"]
+        data["name"], data["projectID"], data["description"]
     )
 
     if not created:
         return jsonify({"error": "projectID already exists"}), 409
 
-    projects_db.addUser(db.client, data["projectID"], data["owner"])
+    projects_db.addUser(data["projectID"], data["owner"])
 
     return jsonify({"message": "Project created", "projectID": data["projectID"]}), 201
 
 
 @app.route("/api/projects/<project_id>", methods=["GET"])
 def get_project(project_id):
-    project = projects_db.queryProject(db.client, project_id)
+    project = projects_db.queryProject(project_id)
 
     if not project:
         return jsonify({"error": "Project not found"}), 404
@@ -107,9 +152,10 @@ def get_project(project_id):
 
 
 @app.route("/api/projects", methods=["GET"])
+@token_required
 def get_projects():
     projects = []
-    for project in db.db["projects"].find():
+    for project in db.db["projects"].find({"users": request.user_id}):
         projects.append({
             "id": str(project["_id"]),
             "name": project.get("projectName"),
@@ -118,6 +164,14 @@ def get_projects():
             "users": project.get("users", [])
         })
     return jsonify(projects), 200
+
+@app.route("/api/projects/<project_id>/join", methods=["POST"])
+@token_required
+def join_project(project_id):
+    added = projects_db.addUser(project_id, request.user_id)
+    if not added:
+        return jsonify({"error": "Project not found"}), 404
+    return jsonify({"message": "Joined project"}), 200
 
 
 # Hardware routes (view hardware, checkout, check-in)
@@ -128,6 +182,7 @@ def get_hardware():
 
 
 @app.route("/api/hardware/checkout", methods=["POST"])
+@token_required
 def checkout_hardware():
     data = request.get_json()
 
@@ -143,6 +198,7 @@ def checkout_hardware():
 
 
 @app.route("/api/hardware/checkin", methods=["POST"])
+@token_required
 def checkin_hardware():
     data = request.get_json()
 
@@ -166,4 +222,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"[ERROR] Could not connect to MongoDB: {e}")
 
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5050)

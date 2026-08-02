@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../api";
 import "../styles/ProjectDashboard.css";
 
-const mockUser = {
-  username: "testuser",
-  password: "Password123",
-};
-
 function UserPortal() {
-  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadUser() {
+      const user = await getCurrentUser();
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      setUsername(user.userid);
+    }
+    loadUser();
+  }, [navigate]);
 
   return (
     <div>
@@ -23,20 +33,7 @@ function UserPortal() {
         <div className="project-list">
           <div className="project-row">
             <span>Username</span>
-            <span>{mockUser.username}</span>
-          </div>
-
-          <div className="project-row">
-            <span>Password</span>
-            <span>
-              {showPassword ? mockUser.password : "•".repeat(mockUser.password.length)}{" "}
-              <button
-                className="checkout-btn"
-                onClick={() => setShowPassword((prev) => !prev)}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </span>
+            <span>{username}</span>
           </div>
         </div>
       </main>
