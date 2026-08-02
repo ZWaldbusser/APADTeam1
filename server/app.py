@@ -11,7 +11,7 @@ import projectsDatabase as projects_db
 import hardwareDatabase as hardware_db
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 
 # Health check route to confirm the server is running
@@ -198,5 +198,4 @@ if __name__ == "__main__":
         print(f"[OK] Connected to MongoDB database: {db.db.name}")
     except Exception as e:
         print(f"[ERROR] Could not connect to MongoDB: {e}")
-    users_db.create_user("zach", "zach")
     app.run(debug=True, port=5000)
