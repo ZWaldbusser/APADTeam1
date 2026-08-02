@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 import "../styles/ResourceRental.css";
 
 function ResourceRental() {
@@ -9,7 +10,7 @@ function ResourceRental() {
   const [requestQty, setRequestQty] = useState({});
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/hardware")
+    fetch(`${API_BASE_URL}/api/hardware`)
       .then((res) => res.json())
       .then((data) => {
         setHardwareList(data);
@@ -33,7 +34,7 @@ function ResourceRental() {
 
       if (checkoutAmt > 0) {
         promises.push(
-          fetch("http://localhost:5000/api/hardware/checkout", {
+          fetch(`${API_BASE_URL}/api/hardware/checkout`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: hw.name, quantity: checkoutAmt }),
@@ -43,7 +44,7 @@ function ResourceRental() {
 
       if (returnAmt > 0) {
         promises.push(
-          fetch("http://localhost:5000/api/hardware/checkin", {
+          fetch(`${API_BASE_URL}/api/hardware/checkin`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: hw.name, quantity: returnAmt }),
@@ -53,7 +54,7 @@ function ResourceRental() {
     });
 
     Promise.all(promises).then(() => {
-      fetch("http://localhost:5000/api/hardware")
+      fetch(`${API_BASE_URL}/api/hardware`)
         .then((res) => res.json())
         .then((data) => {
           setHardwareList(data);
