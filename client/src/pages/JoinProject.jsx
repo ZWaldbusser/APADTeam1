@@ -10,10 +10,6 @@ function JoinProject() {
 
   return (
     <div>
-      <header className="page-header">
-        <h1>HaaS Hub</h1>
-      </header>
-
     <main className="login-page">
     <div className="login-box"> 
       <h1>Join Project</h1>
