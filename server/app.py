@@ -134,10 +134,10 @@ def get_users():
 @token_required
 def create_project():
     data = request.get_json()
-    required_fields = ["name", "description", "projectID", "owner"]
+    required_fields = ["name", "description", "projectID"]
 
     if not data or not all(field in data for field in required_fields):
-        return jsonify({"error": "name, description, projectID, and owner are required"}), 400
+        return jsonify({"error": "name, description, and projectID are required"}), 400
 
     created = projects_db.createProject(
         data["name"], data["projectID"], data["description"]
@@ -146,7 +146,7 @@ def create_project():
     if not created:
         return jsonify({"error": "projectID already exists"}), 409
 
-    projects_db.addUser(data["projectID"], data["owner"])
+    projects_db.addUser(data["projectID"], request.user_id)
 
     return jsonify({"message": "Project created", "projectID": data["projectID"]}), 201
 
