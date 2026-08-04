@@ -72,10 +72,6 @@ function ResourceRental() {
 
   return (
     <div>
-      <header className="page-header">
-        <h1>HaaS Hub</h1>
-      </header>
-
       <main className="resource-main">
         <h2>Project {projectId}</h2>
 
