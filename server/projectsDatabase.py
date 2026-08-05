@@ -1,6 +1,5 @@
 # Import necessary libraries and modules
-from pymongo import MongoClient
-
+from db import db as myDB
 import hardwareDatabase
 
 '''
@@ -14,11 +13,7 @@ Project = {
 }
 '''
 
-# Function to query a project by its ID
-# returns the project document if successful, else returns None
-def queryProject(client, projectId):
-    # Query and return a project from the database
-    myDB = client["Haas_db"]
+def queryProject(projectId):
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
@@ -29,12 +24,7 @@ def queryProject(client, projectId):
     return cursor
 
 
-
-# Function to create a new project.
-# returns True if successful. Returns False if project already exists
-def createProject(client, projectName, projectId, description, owner):
-    # Create a new project in the database
-    myDB = client["haas"]
+def createProject(projectName, projectId, description):
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
@@ -44,7 +34,7 @@ def createProject(client, projectName, projectId, description, owner):
             'projectId': projectId,
             'description': description,
             'hwSets': {},
-            'users': [owner]
+            'users': []
         })
         return True
     else:
@@ -52,19 +42,15 @@ def createProject(client, projectName, projectId, description, owner):
         return False
 
 
-# Function to add a user to a project. 
-# returns True if successful. Returns False if project was not found
-def addUser(client, projectId, userId):
-    # Add a user to the specified project
-    myDB = client["haas"]
+def addUser(projectId, userId):
     myCol = myDB["projects"]
-    if myCol.find_one({"users": userId}):
-        print(f"User '{userId} already in project.")
-        return False
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
     if cursor == None:
         print(f"Error: project '{projectId}' was not found")
+        return False
+    if userId in cursor.get("users", []):
+        print(f"User '{userId}' already in project '{projectId}'.")
         return False
     myCol.update_one(
         {"projectId": projectId},
@@ -73,14 +59,10 @@ def addUser(client, projectId, userId):
     return True
 
 
-# Function to update hardware usage in a project
-# returns True if the project exists and the update was applied
-def updateUsage(client, projectId, hwSetName, newUsage=0):
-    # Update the usage of a hardware set in the specified project
+def updateUsage(projectId, hwSetName, newUsage=0):
     if newUsage < 0:
         print(f"Error: usage for '{hwSetName}' cannot be negative")
         return False
-    myDB = client["haas"]
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
@@ -95,11 +77,7 @@ def updateUsage(client, projectId, hwSetName, newUsage=0):
     return result.matched_count > 0
 
 
-# Function to check out hardware for a project
-# returns True if the project exists and the check-out was successful, else returns False
-def checkOutHW(client, projectId, hwSetName, qty, userId):
-    # Check out hardware for the specified project and update availability
-    myDB = client["haas"]
+def checkOutHW(projectId, hwSetName, qty, userId):
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
@@ -116,14 +94,11 @@ def checkOutHW(client, projectId, hwSetName, qty, userId):
     )
     return True
 
-# Function to check in hardware for a project
-# returns True if the project exists and the check-in was successful, else returns False
-def checkInHW(client, projectId, hwSetName, qty, userId):
-    # Check in hardware for the specified project and update availability
+
+def checkInHW(projectId, hwSetName, qty, userId):
     if qty <= 0:
         print(f"Error: quantity for check-in must be positive")
         return False
-    myDB = client["haas"]
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
@@ -142,4 +117,3 @@ def checkInHW(client, projectId, hwSetName, qty, userId):
         }
     )
     return result.matched_count > 0
-

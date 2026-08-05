@@ -1,72 +1,81 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
+import { apiFetch, getCurrentUser } from "../api";
 
 function CreateProject() {
   const [projectID] = useState(() => crypto.randomUUID());
-  const [owner, setOwner] = useState("");
   const [projectName, setProjectName] = useState("");
-  const [projectDesc, setProjectDesc] = useState("");
+  const [description, setDescription] = useState("");
+  const [owner, setOwner] = useState(null);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadUser() {
+      const user = await getCurrentUser();
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      setOwner(user.id);
+    }
+    loadUser();
+  }, [navigate]);
+
+  const handleCreate = async () => {
+    setError("");
+    try {
+      const res = await apiFetch("/api/projects", {
+        method: "POST",
+        body: JSON.stringify({
+          name: projectName,
+          description,
+          projectID,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not create project");
+        return;
+      }
+      navigate("/projects");
+    } catch (err) {
+      setError("Could not reach server");
+    }
+  };
 
   return (
     <div>
+      <main className="login-page">
+        <div className="login-box">
+          <h1>Create Project</h1>
 
-    <main className="login-page">
-    <div className="login-box"> 
-      <h1>Create Project</h1>
+          <label>Project ID</label>
+          <input type="text" value={projectID} readOnly disabled />
 
-      <label>owner</label>
-      <input
-        type="text"
-        value={owner}
-        onChange={(e) => setOwner(e.target.value)}
-      />
+          <label>Project Name</label>
+          <input
+            type="text"
+            placeholder="Enter project name"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+          />
 
-      <label>Project ID</label>
-      <input
-        type="text"
-        value={projectID}
-        readOnly
-        disabled
-      />
+          <label>Description</label>
+          <input
+            type="text"
+            placeholder="Enter description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
 
-      <label>Project Name</label>
-      <input
-        type="text"
-        placeholder="Enter project name"
-        value={projectName}
-        onChange={(e) => setProjectName(e.target.value)}
-      />
-      <label>Project Description</label>
-      <input
-        type="text"
-        placeholder="Enter project name"
-        value={projectDesc}
-        onChange={(e) => setProjectDesc(e.target.value)}
-      />
+          {error && <p className="error-text">{error}</p>}
 
-      <button onClick={async () =>{
-        try {
-          const response = await window.fetch('/api/projects', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            /*owner will later result from the login token*/
-            body: JSON.stringify({"owner": owner, "projectID": projectID, "name": projectName, "description": projectDesc})
-          });
-          const data = await response.json();
-          console.log(data);
-        } catch (error){
-          console.error('Project creation failed. ', error);
-        }
-      }}> Create Project
-      </button>
-
-
-      <button onClick={() => navigate("/projects")}>Cancel
-      </button>
-    </div>
-    </main>
+          <button onClick={handleCreate} disabled={!owner}>Create Project</button>
+          <button onClick={() => navigate("/projects")}>Cancel</button>
+        </div>
+      </main>
     </div>
   );
 }
