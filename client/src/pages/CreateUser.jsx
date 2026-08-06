@@ -7,7 +7,7 @@ function CreateUser() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
-  
+
   const handleSubmit = () => {
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
@@ -61,7 +61,8 @@ function CreateUser() {
             } catch (error){
               console.error('Login failed. ', error);
             }
-          }}> Create User</button>
+          }}> Create Account</button>
+          <button onClick={() => navigate("/")}>Back</button>
         </div>
       </main>
     </div>

@@ -11,8 +11,9 @@ export default function AuthEntryPage() {
         <h1>Welcome to the HaaS Hub!</h1>
 
         <div className="nav-box">
-          <button onClick={() => navigate("/login")}>Log In</button>
           <button onClick={() => navigate("/register")}>Create Account</button>
+          <button onClick={() => navigate("/login")}>Log In</button>
+          
         </div>
       </main>
     </div>

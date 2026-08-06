@@ -62,6 +62,7 @@ function ForgotPassword() {
               console.error('Pasword reset failed. ', error);
             }
           }}>Reset Password</button>
+          <button onClick={() => navigate("/")}>Back</button>
         </div>
       </main>
     </div>
