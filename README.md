@@ -81,3 +81,15 @@ This file contains functions for managing users in the database.
 ## Client side
 
 1. Design choices are up to you, but an example directory structure has been provided. 
+
+## Heroku deployment
+
+Use this repo as one Heroku app that serves both the Flask API and the built React frontend.
+
+1. Create a Heroku app and add two buildpacks in this order: Node.js first, Python second.
+2. Set the required config vars in Heroku: `MONGO_URI` and `JWT_SECRET_KEY`.
+3. Deploy from the repository root. The root `heroku-postbuild` script builds the React app in `client/`, and the Flask app serves the generated `client/dist` files.
+4. Start the app with the included `Procfile`, which runs `gunicorn server.app:app`.
+5. After deployment, open the app URL and verify the API with `/api/health/db`.
+
+For local development, keep using `npm run dev` at the repo root. The frontend still works against same-origin `/api` routes, and Vite continues to proxy to the local Flask server during development.

@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:5050";
+import { API_BASE_URL } from "./config";
+
+const BASE_URL = API_BASE_URL;
 
 export async function apiFetch(path, options = {}) {
   const token = localStorage.getItem("token");
