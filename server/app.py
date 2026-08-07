@@ -4,6 +4,12 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
+import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 import db
 import usersDatabase as users_db
 import projectsDatabase as projects_db
@@ -11,7 +17,6 @@ import hardwareDatabase as hardware_db
 
 import jwt
 import datetime
-import os
 from functools import wraps
 
 app = Flask(__name__)
