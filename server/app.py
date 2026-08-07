@@ -1,8 +1,14 @@
 # Main Flask entrypoint. Defines API routes and delegates database
 # operations to the appropriate database module.
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+
+import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import db
 import usersDatabase as users_db
@@ -11,11 +17,14 @@ import hardwareDatabase as hardware_db
 
 import jwt
 import datetime
-import os
 from functools import wraps
 
 app = Flask(__name__)
 CORS(app)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CLIENT_DIST = os.path.abspath(os.path.join(BASE_DIR, "..", "client", "dist"))
+CLIENT_BUILD_EXISTS = os.path.isdir(CLIENT_DIST)
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 if not SECRET_KEY:
@@ -43,7 +52,24 @@ def token_required(f):
 
 @app.route("/", methods=["GET"])
 def home():
+    if CLIENT_BUILD_EXISTS:
+        return send_from_directory(CLIENT_DIST, "index.html")
     return jsonify({"message": "Flask server is running"}), 200
+
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_react_app(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "Not found"}), 404
+
+    if CLIENT_BUILD_EXISTS:
+        candidate_path = os.path.join(CLIENT_DIST, path)
+        if path and os.path.isfile(candidate_path):
+            return send_from_directory(CLIENT_DIST, path)
+        return send_from_directory(CLIENT_DIST, "index.html")
+
+    return jsonify({"error": "Not found"}), 404
 
 
 @app.route("/api/health/db", methods=["GET"])
@@ -238,4 +264,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"[ERROR] Could not connect to MongoDB: {e}")
 
-    app.run(debug=True, port=5050)
+    app.run(
+        debug=os.getenv("FLASK_DEBUG") == "1",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 5050)),
+    )
