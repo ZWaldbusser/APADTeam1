@@ -210,9 +210,11 @@ def get_projects():
 @app.route("/api/projects/<project_id>/join", methods=["POST"])
 @token_required
 def join_project(project_id):
-    added = projects_db.addUser(project_id, request.user_id)
-    if not added:
+    result = projects_db.addUser(project_id, request.user_id)
+    if result == "not_found":
         return jsonify({"error": "Project not found"}), 404
+    if result == "already_member":
+        return jsonify({"error": "You are already a member of this project"}), 409
     return jsonify({"message": "Joined project"}), 200
 
 

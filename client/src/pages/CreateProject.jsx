@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch, getCurrentUser } from "../api";
 
 function CreateProject() {
-  const [projectID] = useState(() => crypto.randomUUID());
+  const [projectID, setProjectID] = useState("");
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [owner, setOwner] = useState(null);
@@ -25,13 +25,34 @@ function CreateProject() {
 
   const handleCreate = async () => {
     setError("");
+
+    const trimmedID = projectID.trim();
+    const trimmedName = projectName.trim();
+
+    if (!trimmedID) {
+      setError("Project ID is required");
+      return;
+    }
+
+    // Since projectID is used as a URL path segment (/api/projects/<project_id>),
+    // keep it restricted to safe characters.
+    if (!/^[a-zA-Z0-9_-]+$/.test(trimmedID)) {
+      setError("Project ID can only contain letters, numbers, hyphens, and underscores");
+      return;
+    }
+
+    if (!trimmedName) {
+      setError("Project name is required");
+      return;
+    }
+
     try {
       const res = await apiFetch("/api/projects", {
         method: "POST",
         body: JSON.stringify({
-          name: projectName,
+          name: trimmedName,
           description,
-          projectID,
+          projectID: trimmedID,
         }),
       });
       const data = await res.json();
@@ -52,7 +73,12 @@ function CreateProject() {
           <h1>Create Project</h1>
 
           <label>Project ID</label>
-          <input type="text" value={projectID} readOnly disabled />
+          <input
+            type="text"
+            placeholder="Enter a unique project ID"
+            value={projectID}
+            onChange={(e) => setProjectID(e.target.value)}
+          />
 
           <label>Project Name</label>
           <input
