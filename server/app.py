@@ -237,7 +237,14 @@ def checkout_hardware():
     if not success:
         return jsonify({"error": message}), 400
 
-    projects_db.checkOutHW(data["projectId"], data["name"], data["quantity"], request.user_id)
+    project_updated = projects_db.checkOutHW(
+        data["projectId"], data["name"], data["quantity"], request.user_id
+    )
+
+    if not project_updated:
+        # roll back the pool decrement since the project side didn't apply
+        hardware_db.checkin_hardware(data["name"], data["quantity"])
+        return jsonify({"error": "Project not found"}), 404
 
     return jsonify({"message": message}), 200
 

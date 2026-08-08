@@ -7,8 +7,8 @@ function ResourceRental() {
   const { projectId } = useParams();
   const [hardwareList, setHardwareList] = useState([]);
   const [projectHwSets, setProjectHwSets] = useState({});
-  const [returnQty, setReturnQty] = useState({});
-  const [requestQty, setRequestQty] = useState({});
+  const [checkinQty, setCheckinQty] = useState({});
+  const [checkoutQty, setCheckoutQty] = useState({});
 
   const loadData = () => {
     Promise.all([
@@ -17,14 +17,14 @@ function ResourceRental() {
     ]).then(([hwData, projData]) => {
       setHardwareList(hwData);
       setProjectHwSets(projData.hwSets || {});
-      const initReturn = {};
-      const initRequest = {};
+      const initCheckin = {};
+      const initCheckout = {};
       hwData.forEach((hw) => {
-        initReturn[hw.name] = 0;
-        initRequest[hw.name] = 0;
+        initCheckin[hw.name] = 0;
+        initCheckout[hw.name] = 0;
       });
-      setReturnQty(initReturn);
-      setRequestQty(initRequest);
+      setCheckinQty(initCheckin);
+      setCheckoutQty(initCheckout);
     });
   };
 
@@ -35,7 +35,7 @@ function ResourceRental() {
   const handleCheckout = () => {
     const promises = [];
     hardwareList.forEach((hw) => {
-      const checkoutAmt = requestQty[hw.name] || 0;
+      const checkoutAmt = checkoutQty[hw.name] || 0;
       if (checkoutAmt > 0) {
         promises.push(
           apiFetch("/api/hardware/checkout", {
@@ -53,7 +53,7 @@ function ResourceRental() {
   const handleCheckin = () => {
     const promises = [];
     hardwareList.forEach((hw) => {
-      const returnAmt = returnQty[hw.name] || 0;
+      const returnAmt = checkinQty[hw.name] || 0;
       if (returnAmt > 0) {
         promises.push(
           apiFetch("/api/hardware/checkin", {
@@ -79,8 +79,8 @@ function ResourceRental() {
               <th>Item</th>
               <th>Available</th>
               <th>Currently Rented</th>
-              <th>Return</th>
-              <th>Request Qty</th>
+              <th>Check In Qty</th>
+              <th>Checkout Qty</th>
             </tr>
           </thead>
           <tbody>
@@ -94,9 +94,9 @@ function ResourceRental() {
                     type="number"
                     min="0"
                     max={projectHwSets[hw.name] || 0}
-                    value={returnQty[hw.name] || 0}
+                    value={checkinQty[hw.name] || 0}
                     onChange={(e) =>
-                      setReturnQty({ ...returnQty, [hw.name]: parseInt(e.target.value) || 0 })
+                      setCheckinQty({ ...checkinQty, [hw.name]: parseInt(e.target.value) || 0 })
                     }
                   />
                 </td>
@@ -105,9 +105,9 @@ function ResourceRental() {
                     type="number"
                     min="0"
                     max={hw.available}
-                    value={requestQty[hw.name] || 0}
+                    value={checkoutQty[hw.name] || 0}
                     onChange={(e) =>
-                      setRequestQty({ ...requestQty, [hw.name]: parseInt(e.target.value) || 0 })
+                      setCheckoutQty({ ...checkoutQty, [hw.name]: parseInt(e.target.value) || 0 })
                     }
                   />
                 </td>
