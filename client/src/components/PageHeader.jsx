@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../styles/PageHeader.css";
+import { getCurrentUser } from "../api";
 
-function PageHeader({ title = "HaaS Hub", userName = "Guest" }) {
+function PageHeader({ title = "HaaS Hub" }) {
+  const [userName, setUserName] = useState("Guest");
   const location = useLocation();
   const navigate = useNavigate();
   const hiddenOnRoutes = ["/", "/login", "/register", "/forgotpassword"];
@@ -13,6 +16,16 @@ function PageHeader({ title = "HaaS Hub", userName = "Guest" }) {
     { to: "/createproject", label: "Create Project" },
     { to: "/joinproject", label: "Join Project" },
   ];
+
+  useEffect(() => {
+    async function loadUser() {
+      const user = await getCurrentUser();
+      if (user) {
+        setUserName(user.userid);
+      }
+    }
+    loadUser();
+  }, []);
 
   const handleLogout = () => {
     navigate("/login");

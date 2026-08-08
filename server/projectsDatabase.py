@@ -46,17 +46,17 @@ def addUser(projectId, userId):
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
     cursor = myCol.find_one(myQuery)
-    if cursor == None:
+    if cursor is None:
         print(f"Error: project '{projectId}' was not found")
-        return False
+        return "not_found"
     if userId in cursor.get("users", []):
         print(f"User '{userId}' already in project '{projectId}'.")
-        return False
+        return "already_member"
     myCol.update_one(
         {"projectId": projectId},
         {"$addToSet": {"users": userId}}
     )
-    return True
+    return "added"
 
 
 def updateUsage(projectId, hwSetName, newUsage=0):

@@ -73,9 +73,9 @@ function CreateProject() {
       const res = await apiFetch("/api/projects", {
         method: "POST",
         body: JSON.stringify({
-          name: projectName,
+          name: trimmedName,
           description,
-          projectID,
+          projectID: trimmedID,
         }),
       });
       const data = await res.json();
