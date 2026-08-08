@@ -11,7 +11,7 @@ export async function apiFetch(path, options = {}) {
   };
 
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
-  if (res.status === 401) {
+  if (res.status === 401 && window.location.pathname !== "/login") {
     localStorage.removeItem("token");
     window.location.href = "/login";
   }
