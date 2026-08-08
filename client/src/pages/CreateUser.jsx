@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
 
 function CreateUser() {
   const [userID, setUserID] = useState("");
@@ -9,12 +10,26 @@ function CreateUser() {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSignup = async () => {
+    setErrorMessage("");
     if (password !== confirmPassword) {
-      console.log("Passwords do not match");
+      setErrorMessage("Passwords do not match");
       return;
     }
-    console.log(username, password);
+    try {
+      const response = await apiFetch("/api/signup", {
+        method: "POST",
+        body: JSON.stringify({ userID, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        navigate("/login");
+      } else {
+        setErrorMessage(data.error || "Signup failed");
+      }
+    } catch (error) {
+      setErrorMessage("Network error. Please try again.");
+    }
   };
 
   return (
@@ -49,28 +64,7 @@ function CreateUser() {
 
           {errorMessage && <p className="error-text">{errorMessage}</p>}
 
-          <button onClick={async () =>{
-            setErrorMessage("");
-            if (password !== confirmPassword) {
-              setErrorMessage("Passwords do not match");
-              return;
-            }
-            try {
-              const response = await window.fetch('/api/signup', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({userID: userID, password: password})
-              });
-              const data = await response.json();
-              if (response.ok) {
-                navigate("/login");
-              } else {
-                setErrorMessage(data.error || "Signup failed");
-              }
-            } catch (error){
-              setErrorMessage("Network error. Please try again.");
-            }
-          }}> Create Account</button>
+          <button onClick={handleSignup}>Create Account</button>
           <button onClick={() => navigate("/")}>Back</button>
         </div>
       </main>
