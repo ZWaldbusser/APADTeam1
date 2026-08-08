@@ -10,15 +10,16 @@ creating its own client, so the connection is configured in exactly one place.
 
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from pathlib import Path
 import certifi
 import os
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 MONGO_URI = os.getenv("MONGO_URI")
 if not MONGO_URI:
     raise RuntimeError(
-        "MONGO_URI is not set. Create a .env file in the server/ folder "
+        "MONGO_URI is not set. Create a .env file in the project root "
     )
 
 # serverSelectionTimeoutMS makes a bad connection fail fast (5s) instead of

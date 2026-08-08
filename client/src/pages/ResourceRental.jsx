@@ -1,72 +1,70 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { API_BASE_URL } from "../config";
+import { apiFetch } from "../api";
 import "../styles/ResourceRental.css";
 
 function ResourceRental() {
   const { projectId } = useParams();
   const [hardwareList, setHardwareList] = useState([]);
-  const [returnQty, setReturnQty] = useState({});
-  const [requestQty, setRequestQty] = useState({});
+  const [projectHwSets, setProjectHwSets] = useState({});
+  const [checkinQty, setCheckinQty] = useState({});
+  const [checkoutQty, setCheckoutQty] = useState({});
+
+  const loadData = () => {
+    Promise.all([
+      apiFetch("/api/hardware").then((res) => res.json()),
+      apiFetch(`/api/projects/${projectId}`).then((res) => res.json()),
+    ]).then(([hwData, projData]) => {
+      setHardwareList(hwData);
+      setProjectHwSets(projData.hwSets || {});
+      const initCheckin = {};
+      const initCheckout = {};
+      hwData.forEach((hw) => {
+        initCheckin[hw.name] = 0;
+        initCheckout[hw.name] = 0;
+      });
+      setCheckinQty(initCheckin);
+      setCheckoutQty(initCheckout);
+    });
+  };
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/hardware`)
-      .then((res) => res.json())
-      .then((data) => {
-        setHardwareList(data);
-        const initReturn = {};
-        const initRequest = {};
-        data.forEach((hw) => {
-          initReturn[hw.name] = 0;
-          initRequest[hw.name] = 0;
-        });
-        setReturnQty(initReturn);
-        setRequestQty(initRequest);
-      });
+    loadData();
   }, []);
 
   const handleCheckout = () => {
     const promises = [];
-
     hardwareList.forEach((hw) => {
-      const checkoutAmt = requestQty[hw.name] || 0;
-      const returnAmt = returnQty[hw.name] || 0;
-
+      const checkoutAmt = checkoutQty[hw.name] || 0;
       if (checkoutAmt > 0) {
         promises.push(
-          fetch(`${API_BASE_URL}/api/hardware/checkout`, {
+          apiFetch("/api/hardware/checkout", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: hw.name, quantity: checkoutAmt }),
-          })
-        );
-      }
-
-      if (returnAmt > 0) {
-        promises.push(
-          fetch(`${API_BASE_URL}/api/hardware/checkin`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: hw.name, quantity: returnAmt }),
+            body: JSON.stringify({ name: hw.name, quantity: checkoutAmt, projectId }),
           })
         );
       }
     });
-
     Promise.all(promises).then(() => {
-      fetch(`${API_BASE_URL}/api/hardware`)
-        .then((res) => res.json())
-        .then((data) => {
-          setHardwareList(data);
-          const resetReturn = {};
-          const resetRequest = {};
-          data.forEach((hw) => {
-            resetReturn[hw.name] = 0;
-            resetRequest[hw.name] = 0;
-          });
-          setReturnQty(resetReturn);
-          setRequestQty(resetRequest);
-        });
+      loadData();
+    });
+  };
+
+  const handleCheckin = () => {
+    const promises = [];
+    hardwareList.forEach((hw) => {
+      const returnAmt = checkinQty[hw.name] || 0;
+      if (returnAmt > 0) {
+        promises.push(
+          apiFetch("/api/hardware/checkin", {
+            method: "POST",
+            body: JSON.stringify({ name: hw.name, quantity: returnAmt, projectId }),
+          })
+        );
+      }
+    });
+    Promise.all(promises).then(() => {
+      loadData();
     });
   };
 
@@ -81,8 +79,8 @@ function ResourceRental() {
               <th>Item</th>
               <th>Available</th>
               <th>Currently Rented</th>
-              <th>Return</th>
-              <th>Request Qty</th>
+              <th>Check In Qty</th>
+              <th>Checkout Qty</th>
             </tr>
           </thead>
           <tbody>
@@ -90,15 +88,15 @@ function ResourceRental() {
               <tr key={hw.name}>
                 <td>{hw.name}</td>
                 <td>{hw.available}</td>
-                <td>{hw.capacity - hw.available}</td>
+                <td>{projectHwSets[hw.name] || 0}</td>
                 <td>
                   <input
                     type="number"
                     min="0"
-                    max={hw.capacity - hw.available}
-                    value={returnQty[hw.name] || 0}
+                    max={projectHwSets[hw.name] || 0}
+                    value={checkinQty[hw.name] || 0}
                     onChange={(e) =>
-                      setReturnQty({ ...returnQty, [hw.name]: parseInt(e.target.value) || 0 })
+                      setCheckinQty({ ...checkinQty, [hw.name]: parseInt(e.target.value) || 0 })
                     }
                   />
                 </td>
@@ -107,9 +105,9 @@ function ResourceRental() {
                     type="number"
                     min="0"
                     max={hw.available}
-                    value={requestQty[hw.name] || 0}
+                    value={checkoutQty[hw.name] || 0}
                     onChange={(e) =>
-                      setRequestQty({ ...requestQty, [hw.name]: parseInt(e.target.value) || 0 })
+                      setCheckoutQty({ ...checkoutQty, [hw.name]: parseInt(e.target.value) || 0 })
                     }
                   />
                 </td>
@@ -119,6 +117,9 @@ function ResourceRental() {
         </table>
 
         <div className="checkout-actions">
+          <button className="checkin-submit-btn" onClick={handleCheckin}>
+            Check In
+          </button>
           <button className="checkout-submit-btn" onClick={handleCheckout}>
             Checkout
           </button>
