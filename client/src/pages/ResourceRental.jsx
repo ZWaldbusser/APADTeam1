@@ -34,11 +34,8 @@ function ResourceRental() {
 
   const handleCheckout = () => {
     const promises = [];
-
     hardwareList.forEach((hw) => {
       const checkoutAmt = requestQty[hw.name] || 0;
-      const returnAmt = returnQty[hw.name] || 0;
-
       if (checkoutAmt > 0) {
         promises.push(
           apiFetch("/api/hardware/checkout", {
@@ -47,7 +44,16 @@ function ResourceRental() {
           })
         );
       }
+    });
+    Promise.all(promises).then(() => {
+      loadData();
+    });
+  };
 
+  const handleCheckin = () => {
+    const promises = [];
+    hardwareList.forEach((hw) => {
+      const returnAmt = returnQty[hw.name] || 0;
       if (returnAmt > 0) {
         promises.push(
           apiFetch("/api/hardware/checkin", {
@@ -57,7 +63,6 @@ function ResourceRental() {
         );
       }
     });
-
     Promise.all(promises).then(() => {
       loadData();
     });
@@ -112,6 +117,9 @@ function ResourceRental() {
         </table>
 
         <div className="checkout-actions">
+          <button className="checkin-submit-btn" onClick={handleCheckin}>
+            Check In
+          </button>
           <button className="checkout-submit-btn" onClick={handleCheckout}>
             Checkout
           </button>
