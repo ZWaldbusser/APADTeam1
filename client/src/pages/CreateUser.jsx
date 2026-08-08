@@ -6,6 +6,7 @@ function CreateUser() {
   const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = () => {
@@ -46,7 +47,14 @@ function CreateUser() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
+          {errorMessage && <p className="error-text">{errorMessage}</p>}
+
           <button onClick={async () =>{
+            setErrorMessage("");
+            if (password !== confirmPassword) {
+              setErrorMessage("Passwords do not match");
+              return;
+            }
             try {
               const response = await window.fetch('/api/signup', {
                 method: 'POST',
@@ -54,12 +62,13 @@ function CreateUser() {
                 body: JSON.stringify({userID: userID, password: password})
               });
               const data = await response.json();
-              console.log(data);
               if (response.ok) {
                 navigate("/login");
+              } else {
+                setErrorMessage(data.error || "Signup failed");
               }
             } catch (error){
-              console.error('Login failed. ', error);
+              setErrorMessage("Network error. Please try again.");
             }
           }}> Create Account</button>
           <button onClick={() => navigate("/")}>Back</button>
