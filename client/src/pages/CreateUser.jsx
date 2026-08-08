@@ -2,33 +2,57 @@ import { useState } from "react";
 import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../api";
+import Swal from "sweetalert2";
 
 function CreateUser() {
   const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    setErrorMessage("");
+    // Warning alert if passwords don't match
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match");
+      Swal.fire({
+        icon: "warning",
+        title: "Passwords don't match",
+        text: "Please make sure your passwords match before continuing.",
+      });
       return;
     }
+
     try {
       const response = await apiFetch("/api/signup", {
         method: "POST",
         body: JSON.stringify({ userID, password }),
       });
       const data = await response.json();
+
       if (response.ok) {
+        // Success alert if signup is successful
+        await Swal.fire({
+          icon: "success",
+          title: "Account Created!",
+          text: "You can now log in with your new credentials.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
         navigate("/login");
       } else {
-        setErrorMessage(data.error || "Signup failed");
+        // Error alert if signup fails
+        Swal.fire({
+          icon: "error",
+          title: "Signup Failed",
+          text: data.error || "An error occurred during signup. Please try again.",
+        });
       }
-    } catch (error) {
-      setErrorMessage("Network error. Please try again.");
+    } catch {
+      // Error alert if server is unreachable
+      Swal.fire({
+        icon: "error",
+        title: "Connection Error",
+        text: "Network error. Please check your connection and try again.",
+      });
     }
   };
 
@@ -61,8 +85,6 @@ function CreateUser() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-
-          {errorMessage && <p className="error-text">{errorMessage}</p>}
 
           <button onClick={handleSignup}>Create Account</button>
           <button onClick={() => navigate("/")}>Back</button>
