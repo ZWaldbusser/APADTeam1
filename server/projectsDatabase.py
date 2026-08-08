@@ -23,6 +23,7 @@ def queryProject(projectId):
         return None
     return cursor
 
+
 def createProject(projectName, projectId, description):
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
@@ -40,6 +41,7 @@ def createProject(projectName, projectId, description):
         print(f"Error: project '{projectId}' already exists")
         return False
 
+
 def addUser(projectId, userId):
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
@@ -47,11 +49,15 @@ def addUser(projectId, userId):
     if cursor == None:
         print(f"Error: project '{projectId}' was not found")
         return False
+    if userId in cursor.get("users", []):
+        print(f"User '{userId}' already in project '{projectId}'.")
+        return False
     myCol.update_one(
         {"projectId": projectId},
         {"$addToSet": {"users": userId}}
     )
     return True
+
 
 def updateUsage(projectId, hwSetName, newUsage=0):
     if newUsage < 0:
@@ -70,6 +76,7 @@ def updateUsage(projectId, hwSetName, newUsage=0):
 
     return result.matched_count > 0
 
+
 def checkOutHW(projectId, hwSetName, qty, userId):
     myCol = myDB["projects"]
     myQuery = {'projectId': projectId}
@@ -86,6 +93,7 @@ def checkOutHW(projectId, hwSetName, qty, userId):
 
     )
     return True
+
 
 def checkInHW(projectId, hwSetName, qty, userId):
     if qty <= 0:

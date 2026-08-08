@@ -1,10 +1,12 @@
 import { useState } from "react";
 import "../styles/Login.css";
+import { useNavigate } from "react-router-dom";
 
 function CreateUser() {
-  const [username, setUsername] = useState("");
+  const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = () => {
     if (password !== confirmPassword) {
@@ -16,10 +18,6 @@ function CreateUser() {
 
   return (
     <div>
-      <header className="page-header">
-        <h1>HaaS Hub</h1>
-      </header>
-
       <main className="login-page">
         <div className="login-box">
           <h1>Register User</h1>
@@ -28,8 +26,8 @@ function CreateUser() {
           <input
             type="text"
             placeholder="Enter username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={userID}
+            onChange={(e) => setUserID(e.target.value)}
           />
 
           <label>Password</label>
@@ -48,7 +46,23 @@ function CreateUser() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <button onClick={handleSubmit}>Create User</button>
+          <button onClick={async () =>{
+            try {
+              const response = await window.fetch('/api/signup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userID: userID, password: password})
+              });
+              const data = await response.json();
+              console.log(data);
+              if (response.ok) {
+                navigate("/login");
+              }
+            } catch (error){
+              console.error('Login failed. ', error);
+            }
+          }}> Create Account</button>
+          <button onClick={() => navigate("/")}>Back</button>
         </div>
       </main>
     </div>

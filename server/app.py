@@ -1,4 +1,3 @@
-
 # Main Flask entrypoint. Defines API routes and delegates database
 # operations to the appropriate database module.
 
@@ -16,7 +15,7 @@ import os
 from functools import wraps
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app)
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 if not SECRET_KEY:
@@ -63,10 +62,10 @@ def db_health():
 def signup():
     data = request.get_json()
 
-    if not data or "userid" not in data or "password" not in data:
+    if not data or "userID" not in data or "password" not in data:
         return jsonify({"error": "userid and password are required"}), 400
 
-    new_id = users_db.create_user(data["userid"], data["password"])
+    new_id = users_db.create_user(data["userID"], data["password"])
 
     if new_id is None:
         return jsonify({"error": "userid already exists"}), 409
@@ -106,6 +105,23 @@ def get_me():
         "userid": user["userid"]
     }), 200
 
+@app.route("/api/forgot_password", methods=["POST"])
+def change_password():
+    data = request.get_json()
+
+    if not data or "userID" not in data or "password" not in data or "confirmPassword" not in data:
+        return jsonify({"error": "userid and new password are required"}), 400
+
+    if not data["password"] == data["confirmPassword"]:
+        return jsonify({"error": "Passwords must match"}), 400
+
+    success = users_db.forgot_password(data["userID"], data["password"])
+
+    if not success:
+        return jsonify({"error": "Invalid userid or password"}), 401
+
+    return jsonify({"message": "Password  successfully changed"}), 200
+
 
 @app.route("/api/users", methods=["GET"])
 def get_users():
@@ -118,10 +134,10 @@ def get_users():
 @token_required
 def create_project():
     data = request.get_json()
-    required_fields = ["name", "description", "projectID", "owner"]
+    required_fields = ["name", "description", "projectID"]
 
     if not data or not all(field in data for field in required_fields):
-        return jsonify({"error": "name, description, projectID, and owner are required"}), 400
+        return jsonify({"error": "name, description, and projectID are required"}), 400
 
     created = projects_db.createProject(
         data["name"], data["projectID"], data["description"]
@@ -130,7 +146,7 @@ def create_project():
     if not created:
         return jsonify({"error": "projectID already exists"}), 409
 
-    projects_db.addUser(data["projectID"], data["owner"])
+    projects_db.addUser(data["projectID"], request.user_id)
 
     return jsonify({"message": "Project created", "projectID": data["projectID"]}), 201
 

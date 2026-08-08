@@ -4,3 +4,5 @@ python-dotenv
 flask-cors
 PyJWT
 bcrypt
+argon2-cffi
+certifi

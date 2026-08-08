@@ -34,9 +34,6 @@ function Login() {
 
   return (
     <div>
-      <header className="page-header">
-        <h1>HaaS Hub</h1>
-      </header>
       <main className="login-page">
         <div className="login-box">
           <h1>Login</h1>
@@ -59,6 +56,7 @@ function Login() {
           <button onClick={() => navigate("/forgotpassword")}>
             Forgot Password?
           </button>
+          <button onClick={() => navigate("/")}>Back</button>
         </div>
       </main>
     </div>

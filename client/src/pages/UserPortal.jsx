@@ -21,10 +21,6 @@ function UserPortal() {
 
   return (
     <div>
-      <header className="page-header">
-        <h1>HaaS Hub</h1>
-      </header>
-
       <main className="page-main">
         <div className="projects-header">
           <h2>User Portal</h2>
