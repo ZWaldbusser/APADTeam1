@@ -3,16 +3,15 @@ import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../api";
+import Swal from "sweetalert2";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async () => {
-    setError("");
     try {
       const res = await apiFetch("/api/login", {
         method: "POST",
@@ -21,14 +20,35 @@ function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Login failed");
+        // Error alert if credentials fail
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "Please check your credentials and try again.",
+        });
         return;
       }
 
       login(data.token);
+
+        // Success alert if credentials are valid
+      await Swal.fire({
+        icon: "success",
+        title: "Welcome!",
+        text: "Successful log in.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       navigate("/projects");
-    } catch (err) {
-      setError("Could not reach server");
+
+    } catch {
+        // Error alert if server is unreachable
+      Swal.fire({
+        icon: "error",
+        title: "Connection Error",
+        text: "Could not reach server. Please try again later.",
+      });
     }
   };
 
@@ -51,7 +71,7 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <p className="error-text">{error}</p>}
+
           <button onClick={handleLogin}>Login</button>
           <button onClick={() => navigate("/forgotpassword")}>
             Forgot Password?
