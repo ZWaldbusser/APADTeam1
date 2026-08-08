@@ -189,7 +189,8 @@ def get_project(project_id):
         "name": project["projectName"],
         "description": project["description"],
         "projectID": project["projectId"],
-        "users": project.get("users", [])
+        "users": project.get("users", []),
+        "hwSets": project.get("hwSets", {})
     }), 200
 
 
@@ -228,13 +229,15 @@ def get_hardware():
 def checkout_hardware():
     data = request.get_json()
 
-    if not data or "name" not in data or "quantity" not in data:
-        return jsonify({"error": "name and quantity are required"}), 400
+    if not data or "name" not in data or "quantity" not in data or "projectId" not in data:
+        return jsonify({"error": "name, quantity, and projectId are required"}), 400
 
     success, message = hardware_db.checkout_hardware(data["name"], data["quantity"])
 
     if not success:
         return jsonify({"error": message}), 400
+
+    projects_db.checkOutHW(data["projectId"], data["name"], data["quantity"], request.user_id)
 
     return jsonify({"message": message}), 200
 
@@ -244,13 +247,23 @@ def checkout_hardware():
 def checkin_hardware():
     data = request.get_json()
 
-    if not data or "name" not in data or "quantity" not in data:
-        return jsonify({"error": "name and quantity are required"}), 400
+    if not data or "name" not in data or "quantity" not in data or "projectId" not in data:
+        return jsonify({"error": "name, quantity, and projectId are required"}), 400
+
+    project = projects_db.queryProject(data["projectId"])
+    if not project:
+        return jsonify({"error": "Project not found"}), 404
+
+    current_usage = project.get("hwSets", {}).get(data["name"], 0)
+    if current_usage < data["quantity"]:
+        return jsonify({"error": "Cannot return more than this project has checked out"}), 400
 
     success, message = hardware_db.checkin_hardware(data["name"], data["quantity"])
 
     if not success:
         return jsonify({"error": message}), 400
+
+    projects_db.checkInHW(data["projectId"], data["name"], data["quantity"], request.user_id)
 
     return jsonify({"message": message}), 200
 

@@ -1,28 +1,35 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { API_BASE_URL } from "../config";
+import { apiFetch } from "../api";
 import "../styles/ResourceRental.css";
 
 function ResourceRental() {
   const { projectId } = useParams();
   const [hardwareList, setHardwareList] = useState([]);
+  const [projectHwSets, setProjectHwSets] = useState({});
   const [returnQty, setReturnQty] = useState({});
   const [requestQty, setRequestQty] = useState({});
 
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/hardware`)
-      .then((res) => res.json())
-      .then((data) => {
-        setHardwareList(data);
-        const initReturn = {};
-        const initRequest = {};
-        data.forEach((hw) => {
-          initReturn[hw.name] = 0;
-          initRequest[hw.name] = 0;
-        });
-        setReturnQty(initReturn);
-        setRequestQty(initRequest);
+  const loadData = () => {
+    Promise.all([
+      apiFetch("/api/hardware").then((res) => res.json()),
+      apiFetch(`/api/projects/${projectId}`).then((res) => res.json()),
+    ]).then(([hwData, projData]) => {
+      setHardwareList(hwData);
+      setProjectHwSets(projData.hwSets || {});
+      const initReturn = {};
+      const initRequest = {};
+      hwData.forEach((hw) => {
+        initReturn[hw.name] = 0;
+        initRequest[hw.name] = 0;
       });
+      setReturnQty(initReturn);
+      setRequestQty(initRequest);
+    });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const handleCheckout = () => {
@@ -34,39 +41,25 @@ function ResourceRental() {
 
       if (checkoutAmt > 0) {
         promises.push(
-          fetch(`${API_BASE_URL}/api/hardware/checkout`, {
+          apiFetch("/api/hardware/checkout", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: hw.name, quantity: checkoutAmt }),
+            body: JSON.stringify({ name: hw.name, quantity: checkoutAmt, projectId }),
           })
         );
       }
 
       if (returnAmt > 0) {
         promises.push(
-          fetch(`${API_BASE_URL}/api/hardware/checkin`, {
+          apiFetch("/api/hardware/checkin", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: hw.name, quantity: returnAmt }),
+            body: JSON.stringify({ name: hw.name, quantity: returnAmt, projectId }),
           })
         );
       }
     });
 
     Promise.all(promises).then(() => {
-      fetch(`${API_BASE_URL}/api/hardware`)
-        .then((res) => res.json())
-        .then((data) => {
-          setHardwareList(data);
-          const resetReturn = {};
-          const resetRequest = {};
-          data.forEach((hw) => {
-            resetReturn[hw.name] = 0;
-            resetRequest[hw.name] = 0;
-          });
-          setReturnQty(resetReturn);
-          setRequestQty(resetRequest);
-        });
+      loadData();
     });
   };
 
@@ -90,12 +83,12 @@ function ResourceRental() {
               <tr key={hw.name}>
                 <td>{hw.name}</td>
                 <td>{hw.available}</td>
-                <td>{hw.capacity - hw.available}</td>
+                <td>{projectHwSets[hw.name] || 0}</td>
                 <td>
                   <input
                     type="number"
                     min="0"
-                    max={hw.capacity - hw.available}
+                    max={projectHwSets[hw.name] || 0}
                     value={returnQty[hw.name] || 0}
                     onChange={(e) =>
                       setReturnQty({ ...returnQty, [hw.name]: parseInt(e.target.value) || 0 })
