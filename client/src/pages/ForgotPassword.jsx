@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../styles/Login.css";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"; 
 
 function ForgotPassword() {
   const [userID, setUserID] = useState("");
@@ -8,12 +9,61 @@ function ForgotPassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+  
+    // Warning alert if passwords don't match
     if (password !== confirmPassword) {
-      console.log("Passwords do not match");
+      Swal.fire({
+        icon: "warning",
+        title: "Passwords don't match",
+        text: "Please make sure your new passwords match before continuing.",
+      });
       return;
     }
-    console.log(username, password);
+
+    try {
+
+      const response = await window.fetch('/api/forgot_password', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          userID: userID, 
+          password: password, 
+          confirmPassword: confirmPassword
+        })
+      });
+      
+      const data = await response.json();
+
+      if (response.ok) {
+        // Success alert if reset is successful
+        await Swal.fire({
+          icon: "success",
+          title: "Password Reset",
+          text: "Your password has been updated successfully.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        navigate("/login");
+
+      } else {
+        // Error alert if reset fails
+        Swal.fire({
+          icon: "error",
+          title: "Reset Failed",
+          text: data.error || "Could not reset password. Please try again.",
+        });
+      }
+
+    } catch {
+      // Error alert if server is unreachable
+      Swal.fire({
+        icon: "error",
+        title: "Connection Error",
+        text: "Network error. Please check your connection and try again.",
+      });
+    }
+
   };
 
   return (
@@ -46,22 +96,7 @@ function ForgotPassword() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <button onClick={async () =>{
-            try {
-              const response = await window.fetch('/api/forgot_password', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({userID: userID, password: password, confirmPassword: confirmPassword})
-              });
-              const data = await response.json();
-              console.log(data);
-              if (response.ok) {
-                navigate("/login");
-              }     
-            } catch (error){
-              console.error('Pasword reset failed. ', error);
-            }
-          }}>Reset Password</button>
+          <button onClick={handleSubmit}>Reset Password</button>
           <button onClick={() => navigate("/")}>Back</button>
         </div>
       </main>
