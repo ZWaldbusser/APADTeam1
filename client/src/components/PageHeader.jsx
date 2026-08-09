@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../styles/PageHeader.css";
 import { getCurrentUser } from "../api";
+import { useAuth } from "../context/AuthContext";
 
 function PageHeader({ title = "HaaS Hub" }) {
   const [userName, setUserName] = useState("Guest");
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const hiddenOnRoutes = ["/", "/login", "/register", "/forgotpassword"];
   const showNav = !hiddenOnRoutes.includes(location.pathname);
 
@@ -28,6 +30,7 @@ function PageHeader({ title = "HaaS Hub" }) {
   }, []);
 
   const handleLogout = () => {
+    logout();
     navigate("/login");
   };
 

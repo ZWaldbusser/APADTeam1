@@ -9,6 +9,7 @@ function ResourceRental() {
   const [projectHwSets, setProjectHwSets] = useState({});
   const [checkinQty, setCheckinQty] = useState({});
   const [checkoutQty, setCheckoutQty] = useState({});
+  const [error, setError] = useState("");
 
   const loadData = () => {
     Promise.all([
@@ -32,40 +33,44 @@ function ResourceRental() {
     loadData();
   }, []);
 
-  const handleCheckout = () => {
-    const promises = [];
-    hardwareList.forEach((hw) => {
+  const handleCheckout = async () => {
+    setError("");
+    for (const hw of hardwareList) {
       const checkoutAmt = checkoutQty[hw.name] || 0;
       if (checkoutAmt > 0) {
-        promises.push(
-          apiFetch("/api/hardware/checkout", {
-            method: "POST",
-            body: JSON.stringify({ name: hw.name, quantity: checkoutAmt, projectId }),
-          })
-        );
+        const res = await apiFetch("/api/hardware/checkout", {
+          method: "POST",
+          body: JSON.stringify({ name: hw.name, quantity: checkoutAmt, projectId }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || "Checkout failed");
+          loadData();
+          return;
+        }
       }
-    });
-    Promise.all(promises).then(() => {
-      loadData();
-    });
+    }
+    loadData();
   };
 
-  const handleCheckin = () => {
-    const promises = [];
-    hardwareList.forEach((hw) => {
+  const handleCheckin = async () => {
+    setError("");
+    for (const hw of hardwareList) {
       const returnAmt = checkinQty[hw.name] || 0;
       if (returnAmt > 0) {
-        promises.push(
-          apiFetch("/api/hardware/checkin", {
-            method: "POST",
-            body: JSON.stringify({ name: hw.name, quantity: returnAmt, projectId }),
-          })
-        );
+        const res = await apiFetch("/api/hardware/checkin", {
+          method: "POST",
+          body: JSON.stringify({ name: hw.name, quantity: returnAmt, projectId }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || "Check-in failed");
+          loadData();
+          return;
+        }
       }
-    });
-    Promise.all(promises).then(() => {
-      loadData();
-    });
+    }
+    loadData();
   };
 
   return (
@@ -115,6 +120,8 @@ function ResourceRental() {
             ))}
           </tbody>
         </table>
+
+        {error && <p className="error-text">{error}</p>}
 
         <div className="checkout-actions">
           <button className="checkin-submit-btn" onClick={handleCheckin}>
